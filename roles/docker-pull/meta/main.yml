@@ -1,0 +1,4 @@
+---
+dependencies:
+  - role: docker
+    version: 18.06.3~ce~3-0
