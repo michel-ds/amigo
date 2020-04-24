@@ -1,0 +1,33 @@
+---
+- name: Add adoptOpenJDK repository key
+  apt_key: 
+    url: https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
+
+- name: Add open JDK repository
+  apt_repository: 
+    repo: 'deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ {{ ansible_distribution_release }}' 
+
+- name: Install Java 8 JRE and JDK
+  apt: 
+    name: adoptopenjdk-8-{{vm}}
+    state: latest
+
+## Workaround for Debian Java packaging bug
+## See:
+## https://github.com/guardian/status-app/blob/play-2.4/cloud-formation/status-app.json#L159
+## https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/1396760
+## https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=775775
+- name: Install Java certificates
+  command: /var/lib/dpkg/info/ca-certificates-java.postinst configure
+  when: ansible_os_family == "Debian"
+
+## This modifies the JVM's DNS cache TTL, changing it from the default of INFINITY to 60
+## seconds. See this issue for full details: https://github.com/guardian/amigo/issues/238
+- name: Change JVM DNS cache TTL
+  replace:
+    path: /etc/java-8-openjdk/security/java.security
+    regexp: '#networkaddress.cache.ttl=.*'
+    replace: 'networkaddress.cache.ttl=60'
+    backup: yes
+  when: ansible_os_family == "Debian"
+
