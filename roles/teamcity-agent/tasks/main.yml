@@ -61,13 +61,13 @@
   file:
     path: /opt/teamcity/buildAgent/bin/agent.sh
     mode: "+x"
-- name: install nvm
+- name: install fnm
   shell: |
     set -e
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v{{nvm_version}}/install.sh | bash
-    source /opt/teamcity/.nvm/nvm.sh
-    nvm install node
-    nvm install --lts
+    curl -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh | bash
+    alias nvm=fnm
+    fnm install node
+    fnm install --lts
   become: yes
   become_user: teamcity
   args:

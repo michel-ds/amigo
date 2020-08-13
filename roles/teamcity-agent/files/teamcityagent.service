@@ -4,7 +4,7 @@ Requires=network.target
 After=network.target
 
 [Service]
-ExecStart=/bin/bash -c "source /opt/teamcity/.nvm/nvm.sh && /opt/teamcity/buildAgent/bin/agent.sh start"
+ExecStart=/bin/bash -c "/opt/teamcity/buildAgent/bin/agent.sh start"
 ExecStop=/opt/teamcity/buildAgent/bin/agent.sh stop
 ExecStartPre=/bin/bash -c "aws s3 sync s3://teamcity-ivy-cache/ /opt/teamcity/.ivy2/cache/"
 ExecStartPre=/bin/bash -c "aws s3 sync s3://teamcity-ivy-cache/ /opt/teamcity/buildAgent/system/sbt_ivy/cache/"
