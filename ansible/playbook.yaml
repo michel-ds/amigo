@@ -5,4 +5,29 @@
   become: true
 
   tasks:
-    - name: Your task(s) go here...
+    - name: set timezone to Europe/London
+      timezone:
+        name: Europe/London
+    - name: create-user
+      user:
+        name: teamcity
+        home: /opt/teamcity
+    - name: Install unzip
+      apt:
+        name: unzip
+        force: yes
+        update_cache: yes
+    - name: install fnm
+      shell: |
+        set -e
+        export SHELL=/bin/bash && curl -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh | bash
+        source /opt/teamcity/.bashrc
+        cat /opt/teamcity/.bashrc
+#        fnm --version
+#        alias nvm=fnm
+#        fnm install node
+#        fnm install --lts
+      become: yes
+      become_user: teamcity
+      args:
+        executable: /bin/bash
