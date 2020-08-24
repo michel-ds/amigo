@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: packages
+    packages:
+      - libnss3-tools
+      - git

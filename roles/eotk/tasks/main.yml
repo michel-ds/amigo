@@ -1,0 +1,12 @@
+---
+- name: Download mkcert
+  shell: |
+    mkdir -p "$HOME/bin"
+    export PATH="$PATH:$HOME/bin"
+    wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 -O "$HOME/bin/mkcert"
+
+- name: Build and install eotk
+  shell: |
+    git clone https://github.com/guardian/eotk
+    cd eotk
+    ./opt.d/build-ubuntu-20.04.sh
