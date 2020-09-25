@@ -1,5 +1,4 @@
 ---
-oauth_version: 2.2
-oauth_package_version: 2.2.0
-go_version: 1.8.1
+oauth_version: 6.1.1
+oauth_package_version: 6.1.1
 systemd_file: oauth2-proxy.service
