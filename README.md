@@ -16,7 +16,7 @@ This project is built in [teamcity](https://teamcity.gutools.co.uk/buildConfigur
 
 ## Implementation
 
-AMIgo is implemented as a Play application. It uses Packer and Ansible to bake AMIs.
+AMIgo is implemented as a Play application. It uses Packer and Ansible to bake AMIs. 
 
 ### AMI baking process
 
