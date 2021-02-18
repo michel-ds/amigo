@@ -55,6 +55,9 @@
           <div class="row">
             <div class="col-md-12">
               <div class="well package-list">
+                @if(diff.isEmpty) {
+                  <span>No changes detected</span>
+                }
 
               @for(d <- diff) {
                 @d.operation match {
