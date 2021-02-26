@@ -2,8 +2,8 @@
   - name: Install pip
     apt: name=python-pip state=present
 
-
   - name: Debug hook
+    shell: |
       pip3 show awscli
   
   - name: Download AWS CFN tools
