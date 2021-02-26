@@ -24,7 +24,7 @@
 
 - name: Get region
   shell: |
-    ec2metadata --availability-zone | sed 's/.$//'
+    echo eu-west-1
   register: aws_region
 
 - name: Bring in ssm script
