@@ -3,8 +3,8 @@
     apt: name=python-pip state=present
 
 
-- name: Debug hook
-    pip3 show awscli
+  - name: Debug hook
+      pip3 show awscli
   
   - name: Download AWS CFN tools
     get_url: url=https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz dest=/tmp/aws-cfn-bootstrap-latest.tar.gz 
