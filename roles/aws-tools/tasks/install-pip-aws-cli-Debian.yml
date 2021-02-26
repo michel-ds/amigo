@@ -6,6 +6,6 @@
   shell: |
     pip3 --version
     echo Installing pip3 install -Iv awscli==1.19.14
-    pip3 install -Iv awscli==1.19.14
+    echo pip3 install -Iv awscli==1.19.14
     echo Installed. Listing
     pip3 show awscli
