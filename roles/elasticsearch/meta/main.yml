@@ -1,4 +1,4 @@
 ---
 dependencies:
   - apt
-  - {{ java_version | java8 }}
+  - "{ java_version | java8 }}"
