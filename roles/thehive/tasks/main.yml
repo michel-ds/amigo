@@ -1,0 +1,13 @@
+---
+- name: Add GPG key
+  apt_key:
+    url: "https://raw.githubusercontent.com/TheHive-Project/TheHive/master/PGP-PUBLIC-KEY"
+
+- name: Add repository
+  ansible.builtin.apt_repository:
+    repo: deb https://deb.thehive-project.org release main
+
+- name: Install
+  apt:
+    name: thehive4
+    update_cache: yes
