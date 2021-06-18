@@ -1,9 +1,8 @@
 import { readFileSync } from "fs";
-import path from "path";
 import { CfnInclude } from "@aws-cdk/cloudformation-include";
 import type { CfnIncludeProps } from "@aws-cdk/cloudformation-include/lib/cfn-include";
 import type { App, IConstruct } from "@aws-cdk/core";
-import { Annotations, TagManager } from "@aws-cdk/core";
+import { Annotations, CfnResource, TagManager } from "@aws-cdk/core";
 import type {
   GuStackProps,
   GuStageParameter,
@@ -22,22 +21,23 @@ interface CfnYaml {
   Resources: Record<string, { Properties: { Tags?: Array<{ Key: string }> } }>;
 }
 
-class GuYamlMigration extends CfnInclude {
-  constructor(stack: GuStack, props: CfnIncludeProps) {
-    super(stack, "YamlTemplate", props);
+interface GuStackForYamlMigrationProps extends GuStackProps, CfnIncludeProps {}
 
-    const template = yamlParse(
-      readFileSync(props.templateFile, "utf8")
-    ) as CfnYaml;
+class GuStackForYamlMigration extends GuStack {
+  private readonly cfnYaml: CfnYaml;
 
+  private validateTags() {
     this.node.findAll().forEach((construct: IConstruct) => {
-      if (TagManager.isTaggable(construct)) {
+      if (
+        CfnResource.isCfnResource(construct) &&
+        TagManager.isTaggable(construct)
+      ) {
         const identityTags = ["App", "Stack", "Stage"];
 
         const constructId = construct.node.id;
 
         const currentTags = (
-          template.Resources[constructId].Properties.Tags ?? []
+          this.cfnYaml.Resources[constructId].Properties.Tags ?? []
         ).map((_) => _.Key);
 
         const expectedTags = Array.from(
@@ -55,6 +55,14 @@ class GuYamlMigration extends CfnInclude {
             (identityTag) => !currentTags.includes(identityTag)
           ).length > 0;
 
+        console.log(
+          constructId,
+          currentTags,
+          expectedTagsInOrder,
+          hasMissingTags,
+          isTagOrderCorrect
+        );
+
         if (hasMissingTags || !isTagOrderCorrect) {
           Annotations.of(construct).addError(
             `TAGGING ERROR. Missing identity tags or tags not listed in correct order. Expected: [${expectedTagsInOrder.join(
@@ -65,19 +73,30 @@ class GuYamlMigration extends CfnInclude {
       }
     });
   }
+
+  constructor(app: App, id: string, props: GuStackForYamlMigrationProps) {
+    super(app, id, { ...props, migratedFromCloudFormation: true });
+
+    this.cfnYaml = yamlParse(
+      readFileSync(props.templateFile, "utf8")
+    ) as CfnYaml;
+
+    const yamlTemplateProps: CfnIncludeProps = {
+      ...props,
+      parameters: {
+        ...props.parameters,
+        Stage: this.getParam<GuStageParameter>("Stage"), // TODO `GuStageParameter` could be a singleton to simplify this
+      },
+    };
+
+    new CfnInclude(this, `${id}Yaml`, yamlTemplateProps);
+
+    this.validateTags();
+  }
 }
 
 export class AmigoStack extends GuStack {
-  constructor(scope: App, id: string, props: GuStackProps) {
+  constructor(scope: App, id: string, props: GuStackForYamlMigrationProps) {
     super(scope, id, props);
-
-    const templateFile = path.join(__dirname, "../../cloudformation.yaml");
-
-    new GuYamlMigration(this, {
-      templateFile,
-      parameters: {
-        Stage: this.getParam<GuStageParameter>("Stage"), // TODO `GuStageParameter` could be a singleton to simplify this
-      },
-    });
   }
 }
