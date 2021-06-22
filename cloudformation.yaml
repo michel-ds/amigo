@@ -154,6 +154,8 @@ Resources:
       Subnets: !Ref 'PublicSubnets'
       CrossZone: true
       Listeners:
+
+      # HSTS is enabled on CODE and PROD domains, making HTTP (port 80) redundant
       - Protocol: HTTP
         LoadBalancerPort: '80'
         InstancePort: '9000'
@@ -227,6 +229,7 @@ Resources:
         80
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
+      # HSTS is enabled on CODE and PROD domains, making HTTP (port 80) redundant
       - IpProtocol: tcp
         FromPort: '80'
         ToPort: '80'
@@ -253,6 +256,7 @@ Resources:
       GroupDescription: SSH and HTTP
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
+      # Do we really need direct access to the instance on 9000? `ssm cmd -c "curl localhost:9000"` should be enough.
       - IpProtocol: tcp
         FromPort: '9000'
         ToPort: '9000'
@@ -273,6 +277,7 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       BucketName:
+        # Simplify this into just a mapping lookup? `!FindInMap [ Config, Ref: Stage, DataBucketName ]`
         Fn::Sub:
           - amigo-data-${LowerCaseStage}
           - LowerCaseStage: !FindInMap [ Config, Ref: Stage, LowerCaseName ]
