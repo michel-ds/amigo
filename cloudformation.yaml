@@ -75,19 +75,32 @@ Resources:
           Action:
           - dynamodb:ListTables
           Resource: '*'
+
+        # AMIgo uses DynamoDb as a data store.
+        # The permissions are quite wide, mainly because AMIgo creates tables as well as reading/writing data.
+        # See `app/data/Dynamo.scala`
         - Effect: Allow
           Action:
           - dynamodb:*
           Resource: !Sub 'arn:aws:dynamodb:*:*:table/amigo-${Stage}-*'
+
+        # Permissions to obtain configuration via configuration-magic
+        # See https://github.com/guardian/configuration-magic/blob/master/core/src/main/scala/com/gu/cm/DynamoDbConfigurationSource.scala
         - Effect: Allow
           Action:
           - dynamodb:DescribeTable
           - dynamodb:GetItem
           Resource: arn:aws:dynamodb:*:*:table/config-deploy
+
+        # Permissions to support encrypted bakes
+        # See https://github.com/guardian/amigo/pull/164
         - Effect: Allow
           Action:
           - sns:ListTopics
           Resource: '*'
+
+        # Permissions to trigger AMI deletion
+        # See https://github.com/guardian/amigo/pull/193
         - Effect: Allow
           Action:
           - sns:*
@@ -96,6 +109,9 @@ Resources:
           Action:
           - sns:*
           Resource: !Sub 'arn:aws:sns:*:*:amigo-${Stage}-housekeeping-notify'
+
+        # Permissions to enable Anghammarad notifications
+        # See https://github.com/guardian/cdk/pull/626
         - Effect: Allow
           Action:
             - sns:Publish
@@ -108,11 +124,15 @@ Resources:
           - s3:PutBucketPolicy
           Resource: !Join [ "", [ "arn:aws:s3::*:", !Ref DistributionBucketName ] ]
 
+        # Permissions to enable listing of installed packages created during a bake
+        # See https://github.com/guardian/amigo/pull/395
         - Effect: Allow
           Action:
             - s3:GetObject
           Resource:
             - !Sub 'arn:aws:s3:::${AmigoDataBucket}/*'
+
+        # See https://github.com/guardian/amigo/pull/526
         - Effect: Allow
           Action:
             - iam:GetInstanceProfile
